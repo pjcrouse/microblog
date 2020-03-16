@@ -5,33 +5,33 @@ from threading import Thread
 import boto3
 
 
-def send_async_email(app, msg):
+def send_async_email(app, destination, message, sender):
     with app.app_context():
-        mail.send(msg)
+        client = boto3.client('ses')
+        client.send_email(Destination=destination, Message=message, Source=sender)
 
 
 def send_email(subject, sender, recipients, text_body, html_body):
     client = boto3.client('ses')
-    CHARSET = 'UTF-8'
-    response = client.send_email(
-        Destination={'ToAddresses': recipients},
-        Message={
+    charset = 'UTF-8'
+    destination = {'ToAddresses': recipients}
+    message = {
             'Body': {
                 'Html': {
-                    'Charset': CHARSET,
+                    'Charset': charset,
                     'Data': html_body,
                 },
                 'Text': {
-                    'Charset': CHARSET,
+                    'Charset': charset,
                     'Data': text_body,
                 },
             },
             'Subject': {
-                'Charset': CHARSET,
+                'Charset': charset,
                 'Data': subject,
             },
-        },
-        Source=sender)
+        }
+    Thread(target=send_async_email, args=(app, destination, message, sender)).start()
 
 
 def send_password_reset_email(user):
