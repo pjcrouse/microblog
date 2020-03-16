@@ -2,6 +2,7 @@ from flask_mail import Message
 from app import mail, app
 from flask import render_template
 from threading import Thread
+import boto3
 
 
 def send_async_email(app, msg):
@@ -10,10 +11,27 @@ def send_async_email(app, msg):
 
 
 def send_email(subject, sender, recipients, text_body, html_body):
-    msg = Message(subject, sender=sender, recipients=recipients)
-    msg.body = text_body
-    msg.html = html_body
-    Thread(target=send_async_email, args=(app, msg)).start()
+    client = boto3.client('ses')
+    CHARSET = 'UTF-8'
+    response = client.send_email(
+        Destination={'ToAddresses': recipients},
+        Message={
+            'Body': {
+                'Html': {
+                    'Charset': CHARSET,
+                    'Data': html_body,
+                },
+                'Text': {
+                    'Charset': CHARSET,
+                    'Data': text_body,
+                },
+            },
+            'Subject': {
+                'Charset': CHARSET,
+                'Data': subject + 'Sent From AWS',
+            },
+        },
+        Source=sender)
 
 
 def send_password_reset_email(user):
