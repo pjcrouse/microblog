@@ -36,9 +36,4 @@
             </li>
         </ul>
     </nav>
-    {% if ((user.email=='patcrouse@gmail.com') and (user==current_user)) %}
-    <p>
-    <a href="{{ url_for('auth.allow_access') }}">Admin Only - Grant Access</a>
-    </p>
-    {% endif %}
 {% endblock %}
