@@ -5,7 +5,8 @@
 ### USER CUSTOME ###
 venv/
 .idea/
-.flaskenv
+.env
+.env
 
 ### Flask ###
 instance/*
