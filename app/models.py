@@ -86,3 +86,9 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+
+class AllowedUsers(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), index=True, unique=True)
+    blocked = db.Column(db.Boolean, default=False)
