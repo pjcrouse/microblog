@@ -4,8 +4,8 @@ from flask_login import login_user, logout_user, current_user
 from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm, \
-    ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User
+    ResetPasswordRequestForm, ResetPasswordForm, AddAllowedUserForm
+from app.models import User, AllowedUsers
 from app.auth.email import send_password_reset_email
 
 
@@ -39,6 +39,9 @@ def register():
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        allowed = AllowedUsers.query.filter_by(email=form.email.data).first()
+        if not allowed:
+            return render_template('errors/not_authorized.html')
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
@@ -46,6 +49,20 @@ def register():
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register', form=form)
+
+
+@bp.route('/allow_access', methods=['GET', 'POST'])
+def allow_access():
+    if current_user.is_authenticated and current_user.email != 'patcrouse@gmail.com':
+        return redirect(url_for('main.index'))
+    form = AddAllowedUserForm()
+    if form.validate_on_submit():
+        allowed_user = AllowedUsers(email=form.email.data)
+        db.session.add(allowed_user)
+        db.session.commit()
+        flash('{} has been granted access to register'.format(form.email.data))
+        return redirect(url_for('main.index'))
+    return render_template('auth/allow_access.html', title='Grant Access', form=form)
 
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
