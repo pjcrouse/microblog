@@ -5,7 +5,7 @@ from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm, \
     ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User
+from app.models import User, AllowedUsers
 from app.auth.email import send_password_reset_email
 
 
@@ -39,6 +39,9 @@ def register():
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        allowed = AllowedUsers.query.filter_by(email=form.email.data).first()
+        if not allowed:
+            return render_template('errors/not_authorized.html')
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)

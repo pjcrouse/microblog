@@ -11,3 +11,4 @@ class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     POSTS_PER_PAGE = 25
     ADMINS = ['quarantogether@gmail.com']
+
