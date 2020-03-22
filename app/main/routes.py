@@ -21,6 +21,10 @@ def index():
     form = PostForm()
     if form.validate_on_submit():
         post = Post(body=form.post.data, author=current_user)
+        # TODO: Eliminate this later
+        if current_user.email == 'thenateonator1234@gmail.com' and 'spam' in form.post.data.lower():
+            flash('Stop spamming me bro')
+            return redirect(url_for('main.index'))
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')

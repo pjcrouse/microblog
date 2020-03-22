@@ -40,7 +40,7 @@ class User(UserMixin, db.Model):
     last_message_read_time = db.Column(db.DateTime)
 
     def __repr__(self):
-        return '<user {}'.format(self.username)
+        return '<user {}>'.format(self.username)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
