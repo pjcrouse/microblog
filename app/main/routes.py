@@ -25,6 +25,9 @@ def index():
         if current_user.email == 'thenateonator1234@gmail.com' and 'spam' in form.post.data.lower():
             flash('Stop spamming me bro')
             return redirect(url_for('main.index'))
+        if current_user.blocked:
+            flash('You have been blocked by the Adimn/AI. Please contact admin for assistance.')
+            return redirect(url_for('main.index'))
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
@@ -37,7 +40,6 @@ def index():
         if posts.has_prev else None
     return render_template('index.html', title='Home Page', form=form, posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
-
 
 
 @bp.route('/explore')
