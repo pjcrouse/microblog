@@ -54,7 +54,7 @@ def register():
 
 @bp.route('/allow_access', methods=['GET', 'POST'])
 def allow_access():
-    if current_user.is_authenticated and current_user.email != 'patcrouse@gmail.com':
+    if current_user.is_authenticated and 'crouse' not in current_user.email.lower():
         return redirect(url_for('main.index'))
     form = AddAllowedUserForm()
     if form.validate_on_submit():
