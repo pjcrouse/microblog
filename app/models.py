@@ -38,6 +38,7 @@ class User(UserMixin, db.Model):
                                         foreign_keys='Message.recipient_id',
                                         backref='recipient', lazy='dynamic')
     last_message_read_time = db.Column(db.DateTime)
+    blocked = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return '<user {}>'.format(self.username)
