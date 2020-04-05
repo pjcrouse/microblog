@@ -80,7 +80,7 @@ def allow_access():
                     db.session.commit()
                     flash('Access for {} has been revoked'.format(revoke_form.email_block.data))
                     return redirect(url_for('main.index'))
-                flash(f'Could not find that user to block.')
+                flash('Could not find that user to block.')
     return render_template('auth/allow_access.html', title='Grant Access', allow_form=allow_form, revoke_form=revoke_form)
 
 
