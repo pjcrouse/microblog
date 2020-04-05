@@ -7,7 +7,7 @@ from app.auth import bp
 from app.auth.email import send_password_reset_email
 from app.auth.forms import LoginForm, RegistrationForm, \
     ResetPasswordRequestForm, ResetPasswordForm, AddAllowedUserForm, BlockAllowedUserForm
-from app.models import User, AllowedUsers
+from app.models import User, AllowedUsers, Post
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -120,3 +120,13 @@ def reset_password(token):
 def user_popup(username):
     user = User.query.filter_by(username=username).first_or_404()
     return render_template('user_popup.html', user=user)
+
+
+@bp.route('/delete_post/<post_id>')
+@login_required
+def delete_post(post_id):
+    post = Post.query.get(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    flash('Post has been deleted.')
+    return redirect(url_for('main.index'))
