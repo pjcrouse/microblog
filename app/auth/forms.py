@@ -43,5 +43,10 @@ class ResetPasswordForm(FlaskForm):
 
 
 class AddAllowedUserForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email_allow = StringField('Email')
     submit = SubmitField('Grant Access')
+
+
+class BlockAllowedUserForm(FlaskForm):
+    email_block = StringField('Email or Username')
+    submit = SubmitField('Revoke Access')

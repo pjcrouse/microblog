@@ -6,7 +6,7 @@ from app import db
 from app.auth import bp
 from app.auth.email import send_password_reset_email
 from app.auth.forms import LoginForm, RegistrationForm, \
-    ResetPasswordRequestForm, ResetPasswordForm, AddAllowedUserForm
+    ResetPasswordRequestForm, ResetPasswordForm, AddAllowedUserForm, BlockAllowedUserForm
 from app.models import User, AllowedUsers
 
 
@@ -19,6 +19,9 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
+            return redirect(url_for('auth.login'))
+        if user.blocked:
+            flash('Your user account has been suspended. Please contact an admin for support.')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -52,18 +55,33 @@ def register():
     return render_template('auth/register.html', title='Register', form=form)
 
 
-@bp.route('/allow_access', methods=['GET', 'POST'])
+@bp.route('/admin', methods=['GET', 'POST'])
 def allow_access():
-    if current_user.is_authenticated and 'crouse' not in current_user.email.lower():
+    if current_user.is_authenticated and not current_user.is_admin:
+        flash('Only admins are allowed to access the admin page.')
         return redirect(url_for('main.index'))
-    form = AddAllowedUserForm()
-    if form.validate_on_submit():
-        allowed_user = AllowedUsers(email=form.email.data)
-        db.session.add(allowed_user)
-        db.session.commit()
-        flash('{} has been granted access to register'.format(form.email.data))
-        return redirect(url_for('main.index'))
-    return render_template('auth/allow_access.html', title='Grant Access', form=form)
+    allow_form = AddAllowedUserForm()
+    revoke_form = BlockAllowedUserForm()
+    if allow_form.validate_on_submit() or revoke_form.validate_on_submit():
+        allowed_user = AllowedUsers(email=allow_form.email_allow.data)
+        if allowed_user.email != '':
+            db.session.add(allowed_user)
+            db.session.commit()
+            flash('{} has been granted access to register'.format(allow_form.email_allow.data))
+            return redirect(url_for('main.index'))
+        else:
+            blocked_user = BlockAllowedUserForm(email=revoke_form.email_block.data)
+            if blocked_user:
+                user = User.query.filter_by(email=blocked_user.email_block.data).first()
+                if not user:
+                    user = User.query.filter_by(username=blocked_user.email_block.data).first()
+                if user:
+                    user.blocked = True
+                    db.session.commit()
+                    flash('Access for {} has been revoked'.format(revoke_form.email_block.data))
+                    return redirect(url_for('main.index'))
+                flash(f'Could not find that user to block.')
+    return render_template('auth/allow_access.html', title='Grant Access', allow_form=allow_form, revoke_form=revoke_form)
 
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
