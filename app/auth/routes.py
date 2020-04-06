@@ -4,7 +4,7 @@ from werkzeug.urls import url_parse
 
 from app import db
 from app.auth import bp
-from app.auth.email import send_password_reset_email
+from app.auth.email import send_password_reset_email, send_user_added_email
 from app.auth.forms import LoginForm, RegistrationForm, \
     ResetPasswordRequestForm, ResetPasswordForm, AddAllowedUserForm, BlockAllowedUserForm
 from app.models import User, AllowedUsers, Post
@@ -67,6 +67,7 @@ def allow_access():
         if allowed_user.email != '':
             db.session.add(allowed_user)
             db.session.commit()
+            send_user_added_email(allowed_user)
             flash('{} has been granted access to register'.format(allow_form.email_allow.data))
             return redirect(url_for('main.index'))
         else:

@@ -11,3 +11,14 @@ def send_password_reset_email(user):
                                          user=user, token=token),
                html_body=render_template('email/reset_password.html',
                                          user=user, token=token))
+
+
+def send_user_added_email(allowed_user):
+    name = allowed_user.email.split("@")[0].strip()
+    send_email("[QuaranTogether] You've been invited to join QuaranTogether",
+               sender=current_app.config['ADMINS'][0],
+               recipients=[allowed_user.email],
+               text_body=render_template('email/allow_user.txt',
+                                         name=name),
+               html_body=render_template('email/allow_user.html',
+                                         name=name))

@@ -1,0 +1,7 @@
+Dear {{ name }},
+
+You have been added and can now register at https://www.quarantogether.com.
+
+Sincerely,
+
+The QuaranTogether Team
