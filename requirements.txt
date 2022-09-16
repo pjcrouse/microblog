@@ -15,7 +15,7 @@ Flask-WTF==0.14.3
 itsdangerous==1.1.0
 Jinja2==2.11.1
 jmespath==0.9.5
-Mako==1.1.2
+Mako==1.2.2
 MarkupSafe==1.1.1
 PyJWT==1.7.1
 python-dateutil==2.8.1
